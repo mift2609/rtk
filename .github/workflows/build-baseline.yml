@@ -3,11 +3,19 @@ on: workflow_dispatch
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: "-C target-cpu=x86-64 -C target-feature=-avx,-avx2,-fma,-f16c,-bmi1,-bmi2,-movbe,-sse3,-ssse3,-sse4.1,-sse4.2,-popcnt"
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - name: Build (default target-cpu = x86-64 baseline)
+      - name: Show flags
+        run: echo "RUSTFLAGS=$RUSTFLAGS"
+      - name: Build pure x86-64 baseline
         run: cargo build --release
+      - name: Verify no AVX ymm instructions
+        run: |
+          n=$(objdump -d target/release/rtk | grep -c '%ymm' || true)
+          echo "ymm count: $n"
       - uses: actions/upload-artifact@v4
         with:
           name: rtk-x86_64-baseline
