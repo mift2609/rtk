@@ -1,0 +1,14 @@
+name: build-baseline
+on: workflow_dispatch
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build (default target-cpu = x86-64 baseline)
+        run: cargo build --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rtk-x86_64-baseline
+          path: target/release/rtk
